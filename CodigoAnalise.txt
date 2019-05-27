@@ -1,0 +1,108 @@
+import pandas as pd
+import re
+import seaborn as sns
+import numpy as np
+
+data = pd.read_csv('CompleteDataset.csv')
+print('Arquivo Lido!')
+
+data['salario'] = data['Wage'].map(lambda x : re.sub('[^0-9]+', '', x)).astype('float64')
+print('Salario alterado!')
+
+def transform(value):
+  out = str(value)
+  if '+' in out:
+    a,b = out.split('+')
+    out = int(a)+int(b)
+  elif '-' in out:
+    a,b = out.split('-')
+    if len(a)== 0: out = -1
+    else: out = int(a)-int(b)
+  elif out == '':
+    out = 0
+    
+    return float(out)
+
+for i in range(9,44):
+  data.iloc[:,i] = data.iloc[:,i].apply(lambda x: transform(x))
+
+
+data.Nationality.nunique() 
+
+data['Nationality'].value_counts()
+
+data.Age.mean()
+
+data['Age'].value_counts()
+
+mediaPorClub = data.groupby('Club').Age.mean()
+
+print(mediaPorClub)
+
+
+
+#media de salario/semana
+data.salario.mean()
+ 
+#média de salário por clube
+mediaSalarioPorClub = data.groupby('Club').salario.mean()
+ 
+#quanto cada clube gasta com salarios
+#o sort_values foi usado para ordenar os valores do maior para o menor
+gastoComSalario = data.groupby('Club').salario.sum().sort_values(ascending = False) 
+ 
+#overall por idade
+RatingPorIdade = data.groupby('Age').Overall.agg(['min','max','mean'])
+ 
+#potencial por idade
+potencialPorIdade = data.groupby('Age').Potential.agg(['min','max','mean'])
+
+
+mediaPorClub = data.groupby('Club').Age.mean()
+
+print(mediaSalarioPorClub)
+
+
+print(gastoComSalario)
+
+print(potencialPorIdade)
+
+mediaOverallPorClub = data.groupby('Club').Overall.mean().sort_values(ascending = False)
+
+filename = 'CompleteDataset.csv'
+df = pd.read_csv(filename)
+
+mediaOverallPorClub = data.groupby('Club').Overall.mean().sort_values(ascending = False)
+df['Club'].value_counts().to_frame().head(10)
+
+data.Age.plot(kind='hist', bins=20)
+
+#distribuições de Overall
+data.Overall.plot(kind='hist', bins=20)
+
+#box plot para analisar salarios dos melhores clubs
+sns.set(style="whitegrid", color_codes=True)
+sns.boxplot(x="Club", y="salario", hue="Club", data=melhoresClubs, palette="PRGn")
+sns.despine(offset=10, trim=True)
+
+#Melhores clubes baseado em seu Overall
+best = data[data['Overall']> 85]
+grouped = best.groupby('Club')
+count_by_club = grouped.count()['Name'].sort_values(ascending = False)
+ 
+ax = sns.countplot(x = 'Club', data = best, order = count_by_club.index)
+ax.set_xticklabels(labels = count_by_club.index, rotation='vertical')
+ax.set_ylabel('Numero de jogadores')
+ax.set_xlabel('Clube')
+ax.set_title('Clubes com os melhores jogadores')
+
+import pandas as pd
+import seaborn as sb
+low_memory=False
+%matplotlib inline
+pd.options.display.max_columns = 80
+pd.options.display.max_rows = 90
+
+filename = 'CompleteDataset.csv'
+df = pd.read_csv(filename)
+
